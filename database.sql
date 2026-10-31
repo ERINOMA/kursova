@@ -35,7 +35,7 @@ CREATE TABLE courses (
         CHECK (duration_hours > 0)
 );
 
---4. Таблиця зарахувань
+--  4. Таблиця зарахувань
 
 CREATE TABLE enrollments (
     id INT PRIMARY KEY AUTO_INCREMENT,
