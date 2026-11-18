@@ -19,14 +19,12 @@
     </properties>
 
     <dependencies>
-        <!-- Jackson для роботи з JSON -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.15.2</version>
         </dependency>
 
-        <!-- Модулі JavaFX для графічного інтерфейсу -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>

@@ -28,7 +28,8 @@ public class HttpCourseClient {
             throw new Exception("Помилка отримання даних: " + response.body());
         }
 
-        return mapper.readValue(response.body(), new TypeReference<List<Enrollment>>() {});
+        return mapper.readValue(response.body(), new TypeReference<List<Enrollment>>() {
+        });
     }
 
     public void changeStatus(int id, String status) throws Exception {
@@ -58,4 +59,27 @@ public class HttpCourseClient {
             throw new Exception("Помилка сервера: Status Code " + response.statusCode());
         }
     }
+
+    public void createStudentFromCsv(String firstName, String lastName, String email, String regDate) throws Exception {
+        String formData = "firstName=" + java.net.URLEncoder.encode(firstName, StandardCharsets.UTF_8)
+                + "&lastName=" + java.net.URLEncoder.encode(lastName, StandardCharsets.UTF_8)
+                + "&email=" + java.net.URLEncoder.encode(email, StandardCharsets.UTF_8)
+                + "&registrationDate=" + java.net.URLEncoder.encode(regDate, StandardCharsets.UTF_8);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/server/api/students"))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .POST(HttpRequest.BodyPublishers.ofString(formData, StandardCharsets.UTF_8))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            if (response.body().contains("error")) {
+                throw new Exception(mapper.readTree(response.body()).get("error").asText());
+            }
+            throw new Exception("Помилка сервера під час імпорту: " + response.statusCode());
+        }
+    }
 }
+

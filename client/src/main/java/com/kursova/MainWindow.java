@@ -29,9 +29,8 @@ public class MainWindow extends Application {
 
     @Override
     public void start(Stage stage) {
-        stage.setTitle("ІС Керування навчальними курсами та зарахуванням");
+        stage.setTitle("Керування навчальними курсами та");
 
-        // 1. Налаштування колонок таблиці TableView
         TableColumn<Enrollment, Integer> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
 
@@ -64,6 +63,10 @@ public class MainWindow extends Application {
         f3Field.setPrefWidth(60);
 
         statusCombo.getItems().addAll("REQUESTED", "APPROVED", "ACTIVE", "COMPLETED");
+        final ProgressBar importProgressBar = new ProgressBar(0);
+        final Label importStatusLabel = new Label("Готовий до імпорту CSV");
+        final Button btnImportCsv = new Button("Імпортувати слухачів (CSV)");
+
 
         Button btnRefresh = new Button("Оновити дані");
         Button btnSaveFactors = new Button("Зберегти оцінки");
@@ -85,7 +88,7 @@ public class MainWindow extends Application {
                 client.updateFactors(selected.getId(), f1, f2, f3);
                 refreshData();
             } catch (NumberFormatException ex) {
-                showError("Помилка вводу", "Оцінки F1, F2, F3 повинні бути цілими числами!");
+                showError("Помилка вводу", "Оцінки повинні бути цілими числами!");
             } catch (Exception ex) {
                 showError("Помилка сервера", ex.getMessage());
             }
@@ -105,6 +108,86 @@ public class MainWindow extends Application {
             } catch (Exception ex) {
                 showError("Порушення циклу!", ex.getMessage());
             }
+        });
+
+        btnImportCsv.setOnAction(e -> {
+            btnImportCsv.setDisable(true);
+            importProgressBar.setProgress(0);
+
+            javafx.concurrent.Task<String> importTask = new javafx.concurrent.Task<>() {
+                @Override
+                protected String call() throws Exception {
+                    java.nio.file.Path csvPath = java.nio.file.Path.of("sample-data", "students.csv");
+                    if (!java.nio.file.Files.exists(csvPath)) {
+                        throw new Exception("CSV-файл не знайдено за шляхом: " + csvPath);
+                    }
+
+                    java.util.List<String> lines = java.nio.file.Files.readAllLines(csvPath, java.nio.charset.StandardCharsets.UTF_8);
+                    if (lines.isEmpty() || !lines.get(0).trim().equals("first_name,last_name,email,registration_date")) {
+                        throw new Exception("Неправильний заголовок CSV-файлу!");
+                    }
+
+                    int total = lines.size() - 1;
+                    int successCount = 0;
+                    int skippedCount = 0;
+
+                    for (int i = 1; i < lines.size(); i++) {
+                        String line = lines.get(i).trim();
+                        updateMessage("Обробка рядка " + i + " з " + total + "...");
+                        updateProgress(i, total);
+
+                        Thread.sleep(300);
+
+                        if (line.isEmpty()) {
+                            skippedCount++;
+                            continue;
+                        }
+
+                        String[] parts = line.split(",");
+                        if (parts.length != 4) {
+                            System.err.println("Рядок " + (i + 1) + " пропущено");
+                            skippedCount++;
+                            continue;
+                        }
+
+                        try {
+                            client.createStudentFromCsv(
+                                    parts[0].trim(),
+                                    parts[1].trim(),
+                                    parts[2].trim(),
+                                    parts[3].trim()
+                            );
+                            successCount++;
+                        } catch (Exception rowEx) {
+                            System.err.println(" Рядок " + (i + 1) + " відхилено сервером: " + rowEx.getMessage());
+                            skippedCount++;
+                        }
+                    }
+
+                    return String.format("Імпорт завершено! Успішно: %d, Пропущено/Помилок: %d", successCount, skippedCount);
+                }
+            };
+
+            importProgressBar.progressProperty().bind(importTask.progressProperty());
+            importStatusLabel.textProperty().bind(importTask.messageProperty());
+
+            importTask.setOnSucceeded(ev -> {
+                importProgressBar.progressProperty().unbind();
+                importStatusLabel.textProperty().unbind();
+                importStatusLabel.setText(importTask.getValue());
+                btnImportCsv.setDisable(false);
+                refreshData();
+            });
+
+            importTask.setOnFailed(ev -> {
+                importProgressBar.progressProperty().unbind();
+                importStatusLabel.textProperty().unbind();
+                importStatusLabel.setText("Помилка імпорту!");
+                btnImportCsv.setDisable(false);
+                showError("Помилка CSV-імпорту", importTask.getException().getMessage());
+            });
+
+            new Thread(importTask).start();
         });
 
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -129,8 +212,13 @@ public class MainWindow extends Application {
                 btnRefresh);
         statusPanel.setPadding(new Insets(5));
 
-        VBox root = new VBox(10, table, factorsPanel, statusPanel);
+        importProgressBar.setPrefWidth(180);
+        HBox importPanel = new HBox(10, btnImportCsv, importProgressBar, importStatusLabel);
+        importPanel.setPadding(new Insets(5));
+
+        VBox root = new VBox(10, table, factorsPanel, statusPanel, importPanel);
         root.setPadding(new Insets(15));
+
 
         Scene scene = new Scene(root, 850, 420);
         stage.setScene(scene);

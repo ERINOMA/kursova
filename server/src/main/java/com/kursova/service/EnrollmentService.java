@@ -9,15 +9,19 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class EnrollmentService {
-    private final EnrollmentDao enrollmentDao = new EnrollmentDao();
+    private final EnrollmentDao enrollmentDao;
 
-    /**
-     * Реєстрація нового запиту для зарахування
-     */
+    public EnrollmentService() {
+        this.enrollmentDao = new EnrollmentDao();
+    }
+    public EnrollmentService(EnrollmentDao enrollmentDao) {
+        this.enrollmentDao = enrollmentDao;
+    }
+
+
     public void registerNewEnrollment(Enrollment enrollment) throws SQLException {
-        // 1. Валідація обов'язкових зв'язків
         if (enrollment.getCourseId() == null || enrollment.getStudentId() == null) {
-            String error = "Помилка: ID курсу та студента є обов'язковими!";
+            String error = "Помилка: ID курсу та студента обов'язкові!";
             LoggerUtil.error(error, new IllegalArgumentException(error));
             throw new IllegalArgumentException(error);
         }
@@ -28,12 +32,9 @@ public class EnrollmentService {
         enrollment.setFactorF3(0);
 
         enrollmentDao.create(enrollment);
-        LoggerUtil.info("СЕРВІС: Створено новий запит на зарахування у стані REQUESTED.");
+        LoggerUtil.info("СЕРВІС: Створено новий запит на зарахування.");
     }
 
-    /**
-     * Контроль 4-станного життєвого циклу
-     */
     public void changeStatus(int enrollmentId, EnrollmentStatus newStatus) throws SQLException {
         Enrollment enrollment = enrollmentDao.findById(enrollmentId);
         if (enrollment == null) {
@@ -68,13 +69,9 @@ public class EnrollmentService {
         LoggerUtil.info(String.format("СЕРВІС: Об'єкт ID %d успішно переведено в новий стан: %s", enrollmentId, newStatus));
     }
 
-    /**
-     *Фактори F1, F2, F3 (0-100) та збереження
-     */
     public void updateFactors(int enrollmentId, int f1, int f2, int f3) throws SQLException {
-        // Перевірка допустимого числового діапазону нормованих факторів
         if (f1 < 0 || f1 > 100 || f2 < 0 || f2 > 100 || f3 < 0 || f3 > 100) {
-            String error = "Помилка: Значення факторів F1, F2, F3 мають бути в межах від 0 до 100!";
+            String error = "Помилка: Значення мають бути в межах від 0 до 100!";
             LoggerUtil.error(error, new IllegalArgumentException(error));
             throw new IllegalArgumentException(error);
         }
@@ -90,7 +87,7 @@ public class EnrollmentService {
         enrollment.setFactorF3(f3);
 
         enrollmentDao.update(enrollment);
-        LoggerUtil.info(String.format("СЕРВІС: Оновлено оцінки для ID %d. Автоматично розрахований інтегральний бал: %.2f",
+        LoggerUtil.info(String.format("СЕРВІС: Оновлено оцінки для ID %d. Автоматично розрахований бал: %.2f",
                 enrollmentId, enrollment.getIntegralScore()));
     }
 

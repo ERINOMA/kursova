@@ -6,15 +6,23 @@
 
     <display-name>Course Management System Server</display-name>
 
-    <!-- Реєструємо наш майбутній сервлет у системі -->
     <servlet>
         <servlet-name>EnrollmentServlet</servlet-name>
         <servlet-class>com.kursova.servlet.EnrollmentServlet</servlet-class>
     </servlet>
-
-    <!-- Налаштовуємо URL-адресу, за якою JavaFX буде звертатися до сервера -->
     <servlet-mapping>
         <servlet-name>EnrollmentServlet</servlet-name>
         <url-pattern>/api/enrollments</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>StudentServlet</servlet-name>
+        <servlet-class>com.kursova.servlet.StudentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StudentServlet</servlet-name>
+        <url-pattern>/api/students</url-pattern>
+    </servlet-mapping>
+
 </web-app>
+
