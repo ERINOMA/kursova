@@ -50,7 +50,7 @@ public class StudentDao {
                 }
             }
         } catch (SQLException e) {
-            LoggerUtil.error("DAO: Помилка під час пошуку студента за ID: " + id, e);
+            LoggerUtil.error("DAO: Помилка під час пошуку студента з ID: " + id, e);
             throw e;
         }
         return null;

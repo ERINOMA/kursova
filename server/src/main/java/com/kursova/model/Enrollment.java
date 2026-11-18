@@ -8,17 +8,16 @@ public class Enrollment {
     private Integer courseId;
     private Integer studentId;
     private EnrollmentStatus status;
-    private int factorF1; // виконання завдань (0-100)
-    private int factorF2; // результати тестів (0-100)
-    private int factorF3; // активність у курсі (0-100)
-    private double integralScore; // І = 0.40*F1 + 0.35*F2 + 0.25*F3
+    private int factorF1;
+    private int factorF2;
+    private int factorF3;
+    private double integralScore;
     private LocalDateTime enrollmentDate;
 
     public Enrollment() {
-        this.status = EnrollmentStatus.REQUESTED; //стан "ЗАПИТАНО"
+        this.status = EnrollmentStatus.REQUESTED;
     }
 
-    //розрахунок інтегрального показника Java
     public void calculateIntegralScore() {
         this.integralScore = (0.40 * this.factorF1) + (0.35 * this.factorF2) + (0.25 * this.factorF3);
     }
@@ -54,7 +53,6 @@ public class Enrollment {
     }
 
     public double getIntegralScore() { return integralScore; }
-    // Сеттер для інтегрального балу не потрібен, бо він розраховується автоматично
 
     public LocalDateTime getEnrollmentDate() { return enrollmentDate; }
     public void setEnrollmentDate(LocalDateTime enrollmentDate) { this.enrollmentDate = enrollmentDate; }

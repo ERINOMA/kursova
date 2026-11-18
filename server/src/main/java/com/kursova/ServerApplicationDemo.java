@@ -9,7 +9,7 @@ public class ServerApplicationDemo {
     public static void main(String[] args) {
         EnrollmentService service = new EnrollmentService();
 
-        LoggerUtil.info("=== ЗАПУСК ДЕМОНСТРАЦІЇ СЕРВЕРНОЇ ЛОГІКИ ===");
+        LoggerUtil.info(" ЗАПУСК ДЕМОНСТРАЦІЇ СЕРВЕРНОЇ ЛОГІКИ ");
         LoggerUtil.info("Перевірка: Система керування курсами та зарахуванням");
 
         try {
@@ -29,13 +29,13 @@ public class ServerApplicationDemo {
 
             // Оцінки: F1=90, F2=85, F3=95
             // Формула: I = 0.40*90 + 0.35*85 + 0.25*95 = 36 + 29.75 + 23.75 = 89.50
-            LoggerUtil.info("Виставляємо оцінки факторів F1, F2, F3...");
+            LoggerUtil.info("Виставляємо оцінки...");
             service.updateFactors(enrollmentId, 90, 85, 95);
 
             LoggerUtil.info("Спроба перевести в фінальний стан COMPLETED...");
             service.changeStatus(enrollmentId, EnrollmentStatus.COMPLETED);
 
-            System.out.println("\n[ТЕСТ] Спроба порушити послідовність станів (COMPLETED -> REQUESTED):");
+            System.out.println("\nСпроба порушити послідовність станів (COMPLETED -> REQUESTED):");
             try {
                 service.changeStatus(enrollmentId, EnrollmentStatus.REQUESTED);
                 System.out.println("ТЕСТ ПРОВАЛЕНО! Пропущено неправильний перехід.");
@@ -43,7 +43,7 @@ public class ServerApplicationDemo {
                 System.out.println("ТЕСТ УСПІШНИЙ! Заблоковано хаотичну зміну статусу.");
             }
 
-            LoggerUtil.info("=== ДЕМОНСТРАЦІЯ ЗАВЕРШЕНА УСПІШНО! ВСЕ ПРАЦЮЄ ===");
+            LoggerUtil.info(" ДЕМОНСТРАЦІЯ ЗАВЕРШЕНА УСПІШНО! ВСЕ ПРАЦЮЄ ");
 
         } catch (Exception e) {
             LoggerUtil.error("Помилка під час виконання демонстраційного сценарію", e);

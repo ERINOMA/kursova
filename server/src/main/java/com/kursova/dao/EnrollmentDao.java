@@ -11,7 +11,6 @@ import java.util.List;
 
 public class EnrollmentDao {
 
-    // Створення запису (C - Create)
     public void create(Enrollment enrollment) throws SQLException {
         String sql = "INSERT INTO enrollments (course_id, student_id, status, factor_f1, factor_f2, factor_f3) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -26,7 +25,6 @@ public class EnrollmentDao {
 
             ps.executeUpdate();
 
-            // Отримуємо автоматично згенерований базою даних ID для об'єкта
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     enrollment.setId(generatedKeys.getInt(1));
@@ -39,7 +37,6 @@ public class EnrollmentDao {
         }
     }
 
-    // Читання запису за ID (R - Read)
     public Enrollment findById(int id) throws SQLException {
         String sql = "SELECT * FROM enrollments WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -57,7 +54,6 @@ public class EnrollmentDao {
         return null;
     }
 
-    // Читання повного списку записів (R - Read All)
     public List<Enrollment> findAll() throws SQLException {
         List<Enrollment> list = new ArrayList<>();
         String sql = "SELECT * FROM enrollments";
@@ -74,7 +70,6 @@ public class EnrollmentDao {
         return list;
     }
 
-    // Редагування запису (U - Update)
     public void update(Enrollment enrollment) throws SQLException {
         String sql = "UPDATE enrollments SET status = ?, factor_f1 = ?, factor_f2 = ?, factor_f3 = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -94,7 +89,6 @@ public class EnrollmentDao {
         }
     }
 
-    // Видалення запису (D - Delete)
     public void delete(int id) throws SQLException {
         String sql = "DELETE FROM enrollments WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -108,7 +102,6 @@ public class EnrollmentDao {
         }
     }
 
-    // Допоміжний метод перетворення рядка з БД в об'єкт Java
     private Enrollment mapRow(ResultSet rs) throws SQLException {
         Enrollment e = new Enrollment();
         e.setId(rs.getInt("id"));
