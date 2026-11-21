@@ -53,7 +53,6 @@ public class HttpCourseClient {
 
         if (response.statusCode() != 200) {
             if (response.body().contains("error")) {
-                // Витягуємо повідомлення про помилку з JSON, який сформував наш Servlet
                 throw new Exception(mapper.readTree(response.body()).get("error").asText());
             }
             throw new Exception("Помилка сервера: Status Code " + response.statusCode());
